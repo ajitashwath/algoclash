@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Problem {
+  id           String  @id
+  title        String
+  description  String
+  signature    String
+  examples     String
+  boilerplate  String
+  difficulty   String
+  topic        String
+  functionName String
+  tests        Json
+}
+
+model Room {
+  id         String @id
+  difficulty String
+  topic      String
+  started    Boolean @default(false)
+  winner     String?
+  users      RoomUser[]
+  submissions Submission[]
+}
+
+model RoomUser {
+  id       String @id
+  roomId   String
+  room     Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  name     String
+  team     String
+  ready    Boolean @default(false)
+  attempts Int     @default(0)
+  errors   Int     @default(0)
+  submissions Submission[]
+}
+
+model Submission {
+  id      String @id
+  roomId  String
+  room    Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId  String
+  user    RoomUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code    String
+  ok      Boolean
+  createdAt DateTime @default(now())
+}
